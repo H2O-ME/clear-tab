@@ -1,0 +1,859 @@
+/* 设置系统样式 */
+
+/* 设置按钮 */
+.settings-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-color);
+    opacity: 0.7;
+    font-family: 'Douyin Sans Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+}
+
+.settings-btn:hover {
+    transform: rotate(30deg);
+    background: rgba(255, 255, 255, 0.3);
+    opacity: 1;
+}
+
+.settings-btn svg {
+    width: 24px;
+    height: 24px;
+    opacity: 0.9;
+}
+
+/* 设置弹窗 */
+.settings-modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Douyin Sans Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+}
+
+.settings-modal-container.visible {
+    opacity: 1;
+}
+
+.settings-modal {
+    width: 90%;
+    max-width: 500px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Douyin Sans Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+}
+
+.settings-modal-container.visible .settings-modal {
+    transform: translateY(0) scale(1);
+}
+
+.settings-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.settings-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+    font-family: 'Douyin Sans Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+}
+
+.close-settings-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.close-settings-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: rotate(90deg);
+}
+
+.settings-content {
+    padding: 20px;
+}
+
+.settings-section {
+    margin-bottom: 24px;
+}
+
+.settings-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    font-family: 'Douyin Sans Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-family: 'Douyin Sans Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item span {
+    font-size: 15px;
+    color: #333;
+}
+
+.settings-footer {
+    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.02);
+    text-align: center;
+}
+
+.settings-footer p {
+    margin: 0;
+    font-size: 13px;
+    color: #999;
+    font-family: 'Douyin Sans Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+}
+
+/* 开关按钮样式 */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+/* 太阳和月亮图标 */
+.toggle-slider:after {
+    content: "☀️";
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    font-size: 16px;
+    transition: .4s;
+    z-index: 1;
+}
+
+input:checked + .toggle-slider {
+    background-color: #2c3e50;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(30px);
+    background-color: #f1c40f;
+}
+
+input:checked + .toggle-slider:after {
+    content: "🌙";
+    transform: translateX(30px);
+    color: #f1c40f;
+}
+
+/* 添加动画效果 */
+.toggle-slider:hover:before {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+input:checked + .toggle-slider:hover:before {
+    box-shadow: 0 0 8px rgba(241, 196, 15, 0.5);
+}
+
+/* 深色模式样式 */
+:root {
+    --dark-bg-color: #121212;
+    --dark-text-color: rgba(255, 255, 255, 0.95);
+    --dark-secondary-text: rgba(255, 255, 255, 0.7);
+    --dark-border-color: rgba(255, 255, 255, 0.1);
+    --dark-card-bg: rgba(255, 255, 255, 0.1);
+    --dark-input-bg: rgba(255, 255, 255, 0.1);
+    --dark-input-text: rgba(255, 255, 255, 0.9);
+    --dark-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    --dark-hover-bg: rgba(255, 255, 255, 0.15);
+}
+
+/* 深色模式下的设置按钮 */
+.dark-mode .settings-btn {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .settings-btn:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* 深色模式下的设置弹窗 */
+.dark-mode .settings-modal {
+    background: rgba(30, 30, 30, 0.95);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .settings-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .settings-header h2 {
+    color: var(--dark-text-color);
+}
+
+.dark-mode .close-settings-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--dark-secondary-text);
+}
+
+.dark-mode .close-settings-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dark-mode .settings-section h3 {
+    color: var(--dark-secondary-text);
+}
+
+.dark-mode .setting-item {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .setting-item span {
+    color: var(--dark-text-color);
+}
+
+.dark-mode .settings-footer {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .settings-footer p {
+    color: var(--dark-secondary-text);
+}
+
+/* 全局深色模式样式 */
+.dark-mode body {
+    background: var(--dark-bg-color);
+    color: var(--dark-text-color);
+}
+
+/* 深色模式下的时间和日期 */
+.dark-mode .time,
+.dark-mode .date {
+    color: var(--dark-text-color);
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* 深色模式下的语录卡片 */
+.dark-mode .quote-card {
+    background: rgba(30, 30, 30, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--dark-text-color);
+}
+
+.dark-mode .quote-card:hover {
+    background: rgba(40, 40, 40, 0.7);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 深色模式下的搜索框 */
+.dark-mode .search-container {
+    background: rgba(30, 30, 30, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .search-container.active {
+    background: rgba(40, 40, 40, 0.7);
+}
+
+.dark-mode .search-input {
+    color: var(--dark-input-text);
+}
+
+.dark-mode .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.dark-mode .search-btn {
+    background: rgba(30, 30, 30, 0.6);
+    color: var(--dark-text-color);
+}
+
+.dark-mode .search-btn:hover {
+    background: rgba(40, 40, 40, 0.7);
+}
+
+/* 深色模式下的搜索引擎选择器 */
+.dark-mode .search-engine-selector {
+    background: rgba(30, 30, 30, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .search-engine-dropdown {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .search-engine-option {
+    color: var(--dark-text-color);
+}
+
+.dark-mode .search-engine-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .search-engine-option .shortcut {
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* 深色模式下的搜索结果 */
+.dark-mode .results-container {
+    background: #1a1a1a;
+}
+
+.dark-mode .browser-header {
+    background: rgba(30, 30, 30, 0.95);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .results-search-input {
+    background: rgba(30, 30, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--dark-text-color);
+}
+
+.dark-mode .results-search-btn {
+    background: #1a73e8;
+}
+
+.dark-mode .search-results-container {
+    background: #1a1a1a;
+}
+
+.dark-mode .web-results-column,
+.dark-mode .ai-results-column {
+    background: #2a2a2a;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .web-results-column h2,
+.dark-mode .ai-results-column h2 {
+    color: var(--dark-text-color);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .ai-chat h2 {
+    color: var(--dark-text-color);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .ai-message {
+    background: #333;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--dark-text-color);
+}
+
+.dark-mode .search-result {
+    background: #333;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .search-result h3 a {
+    color: #60a5fa;
+}
+
+.dark-mode .search-result .result-url {
+    color: #4ade80;
+}
+
+.dark-mode .search-result .result-snippet {
+    color: var(--dark-secondary-text);
+}
+
+.dark-mode .search-result .result-meta {
+    color: var(--dark-secondary-text);
+}
+
+.dark-mode .control-btn {
+    background: #333;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--dark-secondary-text);
+}
+
+.dark-mode .control-btn:hover {
+    background: #444;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 深色模式下的滚动条 */
+.dark-mode ::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: #444;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 深色模式下的搜索建议 */
+.dark-mode .search-suggestions {
+    background: transparent !important; /* 完全透明 */
+    display: none; /* 确保搜索建议初始状态是隐藏的 */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.dark-mode .search-container.active .search-suggestions {
+    display: flex; /* 当搜索框激活时才显示 */
+}
+
+.dark-mode .search-suggestion-item {
+    background: rgba(40, 40, 40, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--dark-text-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.dark-mode .search-suggestion-item:hover {
+    background: rgba(60, 60, 60, 0.8);
+}
+
+.dark-mode .search-suggestion-item .suggestion-icon {
+    color: var(--dark-text-color);
+    opacity: 0.8;
+    filter: brightness(1.5);
+}
+
+.dark-mode .search-suggestion-item:hover .suggestion-icon {
+    opacity: 1;
+}
+
+/* 时区选择下拉框样式 */
+.select-container {
+    position: relative;
+    min-width: 200px;
+}
+
+.select-container select {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.select-container select:hover {
+    border-color: var(--primary-color);
+}
+
+.select-container select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.select-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-color);
+}
+
+/* 深色模式下的下拉框样式 */
+.dark-mode .select-container select {
+    background-color: var(--dark-card-bg-color);
+    color: var(--dark-text-color);
+    border-color: var(--dark-border-color);
+}
+
+.dark-mode .select-container select:hover {
+    border-color: var(--primary-color);
+}
+
+.dark-mode .select-arrow {
+    color: var(--dark-secondary-text);
+}
+
+/* 日期显示样式 */
+.date {
+    font-size: 1rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 5px;
+    text-align: center;
+}
+
+.dark-mode .date {
+    color: var(--dark-text-color);
+}
+
+/* API密钥弹窗 */
+.api-key-modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.api-key-modal-content {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 16px !important;
+    padding: 30px !important;
+    width: 90% !important;
+    max-width: 400px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    text-align: center !important;
+    animation: modalFadeIn 0.3s ease forwards !important;
+}
+
+.api-key-modal-content h2 {
+    margin-top: 0 !important;
+    color: #333 !important;
+    font-size: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+.api-key-modal-content p {
+    color: #666 !important;
+    margin-bottom: 20px !important;
+    font-size: 14px !important;
+}
+
+.api-key-modal-content input[type="password"] {
+    width: 100% !important;
+    padding: 12px !important;
+    border: 1px solid rgba(0, 0, 0, 0.2) !important;
+    border-radius: 8px !important;
+    margin-bottom: 20px !important;
+    font-size: 16px !important;
+    background: white !important;
+    color: #333 !important;
+}
+
+.api-key-modal-content #cancel-api-key {
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    background: #f1f1f1 !important;
+    color: #333 !important;
+    cursor: pointer !important;
+    font-size: 15px !important;
+}
+
+.api-key-modal-content #submit-api-key {
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    background: #4285f4 !important;
+    color: white !important;
+    cursor: pointer !important;
+    font-size: 15px !important;
+}
+
+.api-key-modal-content #api-key-error {
+    color: #d32f2f !important;
+    margin-top: 15px !important;
+    font-size: 14px !important;
+    display: none !important;
+}
+
+/* 深色模式下的API密钥弹窗 */
+.dark-mode .api-key-modal-container {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.dark-mode .api-key-modal-content {
+    background: rgba(30, 30, 30, 0.95) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+    color: var(--dark-text-color) !important;
+}
+
+.dark-mode .api-key-modal-content h2 {
+    color: var(--dark-text-color) !important;
+    margin-top: 0 !important;
+    font-size: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+.dark-mode .api-key-modal-content p {
+    color: var(--dark-secondary-text) !important;
+    margin-bottom: 20px !important;
+    font-size: 14px !important;
+}
+
+.dark-mode .api-key-modal-content input[type="password"] {
+    background: rgba(50, 50, 50, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: var(--dark-text-color) !important;
+    width: 100% !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    margin-bottom: 20px !important;
+    font-size: 16px !important;
+}
+
+.dark-mode .api-key-modal-content #cancel-api-key {
+    background: rgba(50, 50, 50, 0.9) !important;
+    color: var(--dark-text-color) !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 15px !important;
+}
+
+.dark-mode .api-key-modal-content #submit-api-key {
+    background: #1a73e8 !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 15px !important;
+}
+
+.dark-mode .api-key-modal-content #api-key-error {
+    color: #ff6b6b !important;
+    margin-top: 15px !important;
+    font-size: 14px !important;
+}
+
+/* 思维导图 */
+.mind-map {
+    background: #2a2a2a;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mind-map h3 {
+    color: var(--dark-text-color);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.mind-map-content {
+    background: #2a2a2a;
+}
+
+.mind-map-image {
+    filter: brightness(0.9) contrast(1.1); /* 调整图片亮度和对比度以适应深色背景 */
+}
+
+.mind-map.loading {
+    background: #2a2a2a;
+}
+
+.mind-map.loading .loading-spinner {
+    border-color: #444;
+    border-top-color: #1a73e8;
+}
+
+.mind-map.loading .loading-text {
+    color: var(--dark-secondary-text);
+}
+
+/* 媒体查询 */
+@media (max-width: 768px) {
+    .settings-btn {
+        top: 15px;
+        right: 15px;
+        width: 36px;
+        height: 36px;
+    }
+    
+    .settings-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* AI搜索等待提示语样式 - 适用于浅色和深色模式 */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 32px;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #E5E7EB;
+    border-top: 3px solid #60A5FA;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    color: #333; /* 白天模式下为黑色文字 */
+}
+
+.loading-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #333; /* 白天模式下为黑色文字 */
+}
+
+.loading-dots {
+    font-size: 24px;
+    line-height: 1;
+    height: 24px;
+    color: #60A5FA;
+    font-family: monospace;
+}
+
+/* AI思考卡片式样式 */
+.ai-thinking-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.ai-thinking-card .loading-spinner {
+    margin-bottom: 5px;
+}
+
+.ai-thinking-card .loading-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.ai-thinking-card .loading-dots {
+    margin-top: -5px;
+}
+
+/* 深色模式下的AI搜索等待提示语 */
+.dark-mode .loading-container {
+    background: rgba(30, 30, 30, 0.3);
+}
+
+.dark-mode .loading-spinner {
+    border-color: #444;
+    border-top-color: #60A5FA;
+}
+
+.dark-mode .loading-text {
+    color: var(--dark-secondary-text);
+}
+
+.dark-mode .loading-title {
+    color: var(--dark-text-color);
+}
+
+.dark-mode .loading-dots {
+    color: #60A5FA;
+}
+
+/* 深色模式下的AI思考卡片 */
+.dark-mode .ai-thinking-card {
+    background: rgba(40, 40, 40, 0.9);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .ai-thinking-card .loading-title {
+    color: var(--dark-text-color);
+}
