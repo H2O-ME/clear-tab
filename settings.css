@@ -188,6 +188,7 @@
     transition: .4s;
     border-radius: 30px;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .toggle-slider:before {
@@ -200,18 +201,53 @@
     background-color: white;
     transition: .4s;
     border-radius: 50%;
-    z-index: 2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.10);
 }
 
-/* 太阳和月亮图标 */
+.toggle-switch input:checked + .toggle-slider {
+    background-color: #4f8cff;
+}
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(30px);
+    background-color: #fff;
+}
+
+.toggle-slider:active:before {
+    width: 26px;
+}
+
+.toggle-slider {
+    box-sizing: border-box;
+    border: 1px solid #eee;
+}
+
+/* 深色模式下开关按钮样式 */
+.dark-mode .toggle-slider {
+    background-color: #555;
+    border: 1px solid #333;
+}
+.dark-mode .toggle-switch input:checked + .toggle-slider {
+    background-color: #2196f3;
+}
+.dark-mode .toggle-slider:before {
+    background-color: #222;
+}
+
+/* 增加开关动画和可访问性 */
+.toggle-switch input:focus + .toggle-slider {
+    box-shadow: 0 0 2px #4f8cff;
+    outline: none;
+}
+
+/* 让滑块有明显的圆角和阴影 */
+.toggle-slider {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* 修正：移除 toggle-slider:after 太阳/月亮图标，恢复纯色滑块 */
 .toggle-slider:after {
-    content: "☀️";
-    position: absolute;
-    top: 5px;
-    left: 8px;
-    font-size: 16px;
-    transition: .4s;
-    z-index: 1;
+    content: "";
+    display: none;
 }
 
 input:checked + .toggle-slider {
@@ -221,12 +257,6 @@ input:checked + .toggle-slider {
 input:checked + .toggle-slider:before {
     transform: translateX(30px);
     background-color: #f1c40f;
-}
-
-input:checked + .toggle-slider:after {
-    content: "🌙";
-    transform: translateX(30px);
-    color: #f1c40f;
 }
 
 /* 添加动画效果 */
@@ -574,6 +604,22 @@ input:checked + .toggle-slider:hover:before {
     color: var(--dark-text-color);
 }
 
+/* 日期向上渐显动画 fadeInUp */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.date {
+    opacity: 0;
+    animation: fadeInUp 0.7s cubic-bezier(0.4,0,0.2,1) 0.1s both;
+}
+
 /* API密钥弹窗 */
 .api-key-modal-container {
     position: fixed;
@@ -745,19 +791,76 @@ input:checked + .toggle-slider:hover:before {
     color: var(--dark-secondary-text);
 }
 
-/* 媒体查询 */
-@media (max-width: 768px) {
-    .settings-btn {
-        top: 15px;
-        right: 15px;
-        width: 36px;
-        height: 36px;
-    }
-    
-    .settings-btn svg {
-        width: 20px;
-        height: 20px;
-    }
+/* 思维导图加载动画新样式 */
+.mind-map.loading {
+    background: linear-gradient(135deg, #e0e7ef 0%, #f8fafc 100%);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(80, 120, 200, 0.10), 0 1.5px 4px rgba(80, 120, 200, 0.07);
+    padding: 36px 0 24px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 220px;
+    margin: 32px 0 24px 0;
+    border: 1.5px solid #e4eaf2;
+    transition: background 0.4s, box-shadow 0.4s;
+}
+.mind-map.loading .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+.mind-map.loading .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 6px solid #bcd0ee;
+    border-top: 6px solid #5b8ff9;
+    border-radius: 50%;
+    animation: mindmap-spin 1.2s linear infinite;
+    margin-bottom: 10px;
+    background: none;
+}
+@keyframes mindmap-spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+}
+.mind-map.loading .loading-title {
+    color: #3b4b6b;
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+.mind-map.loading .loading-text {
+    color: #6c7a89;
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+.mind-map.loading .loading-dots {
+    color: #5b8ff9;
+    font-size: 1.4rem;
+    font-family: monospace;
+    margin-top: 0;
+}
+/* 深色模式适配 */
+.dark-mode .mind-map.loading {
+    background: linear-gradient(135deg, #23272f 0%, #2d3440 100%);
+    border: 1.5px solid #2d3440;
+    box-shadow: 0 4px 24px rgba(30,40,60,0.18), 0 1.5px 4px rgba(30,40,60,0.13);
+}
+.dark-mode .mind-map.loading .loading-spinner {
+    border: 6px solid #374151;
+    border-top: 6px solid #60A5FA;
+}
+.dark-mode .mind-map.loading .loading-title {
+    color: #e6eaf3;
+}
+.dark-mode .mind-map.loading .loading-text {
+    color: #b8c1d6;
+}
+.dark-mode .mind-map.loading .loading-dots {
+    color: #60A5FA;
 }
 
 /* AI搜索等待提示语样式 - 适用于浅色和深色模式 */
@@ -768,6 +871,7 @@ input:checked + .toggle-slider:hover:before {
     gap: 12px;
     padding: 32px;
     text-align: center;
+    color: #60A5FA; /* 将文字颜色改为蓝色 */
 }
 
 .loading-spinner {
@@ -856,4 +960,19 @@ input:checked + .toggle-slider:hover:before {
 
 .dark-mode .ai-thinking-card .loading-title {
     color: var(--dark-text-color);
+}
+
+/* 媒体查询 */
+@media (max-width: 768px) {
+    .settings-btn {
+        top: 15px;
+        right: 15px;
+        width: 36px;
+        height: 36px;
+    }
+    
+    .settings-btn svg {
+        width: 20px;
+        height: 20px;
+    }
 }

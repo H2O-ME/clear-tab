@@ -1,65 +1,26 @@
-import CryptoUtil from './crypto-util.js';
-
 export default class SearchAPI {
     constructor() {
-        this.API_URL = 'https://open.bigmodel.cn/api/paas/v4';
-        
-        
-        this._keyParts = {
-            p1: CryptoUtil.obscureData('0ed7db8a'),
-            p2: CryptoUtil.obscureData('20fd4b6f'),
-            p3: CryptoUtil.obscureData('9a0e2011'),
-            p4: CryptoUtil.obscureData('efb557f7'),
-            p5: CryptoUtil.obscureData('.stnKl4X'),
-            p6: CryptoUtil.obscureData('PxSZYZr1B')
-        };
-        
-        this._apiKey = null; 
-    }
-    
-    get API_KEY() {
-        if (!this._apiKey) {
-            try {
-                this._apiKey = CryptoUtil.getApiKey();
-            } catch (e) {
-                console.error('API 密钥获取错误');
-                this._apiKey = ''; 
-            }
-        }
-        return this._apiKey;
+        this.API_URL = 'https://api.pearktrue.cn/api/aisearch/';
+        this.BING_SEARCH_URL = 'https://api.pearktrue.cn/api/bingsearch/';
     }
 
-    getAuthHeaders() {
-        const headers = {
-            'Content-Type': 'application/json',
-            'X-Client-Version': `${new Date().getFullYear()}.${new Date().getMonth() + 1}`,
-            'X-Request-Time': Date.now().toString()
-        };
-        
-        headers['Authorization'] = this.API_KEY;
-        
-        return headers;
-    }
-
-    async verifyApiKey() {
-        return await CryptoUtil.verifyApiKey();
-    }
-
+    /**
+     * 获取AI搜索响应
+     * @param {string} query 查询内容
+     * @param {Function} onWebResults 网页结果回调函数
+     * @param {Function} onContent 内容更新回调函数
+     * @param {Function} onComplete 完成回调函数
+     * @returns {Promise<Object>} 搜索结果对象
+     */
     async getAIResponse(query, onWebResults, onContent, onComplete) {
         try {
-            // 验证 API 密钥
-            const keyVerified = await this.verifyApiKey();
-            if (!keyVerified) {
-                throw new Error('API 密钥验证失败');
-            }
-            
             // 添加超时处理
             const timeout = 30000; // 30秒超时
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-            // 调用Bing搜索API获取网络搜索结果
-            const bingSearchUrl = `https://api.pearktrue.cn/api/bingsearch/?search=${encodeURIComponent(query)}`;
+            // 调用必应搜索API获取网络搜索结果
+            const bingSearchUrl = `${this.BING_SEARCH_URL}?search=${encodeURIComponent(query)}`;
             const bingSearchResponse = await fetch(bingSearchUrl, {
                 method: 'GET',
                 signal: controller.signal
@@ -68,15 +29,15 @@ export default class SearchAPI {
             const bingSearchResult = await bingSearchResponse.json();
             
             if (bingSearchResult.code === 200 && bingSearchResult.data && bingSearchResult.data.length > 0) {
-                // 将Bing搜索结果转换为所需格式，确保结果是扁平化的数组
+                // 将搜索结果转换为所需格式
                 const formattedResults = bingSearchResult.data.map(item => ({
                     title: item.title,
                     content: item.abstract,
                     link: item.href,
-                    media: 'Bing搜索', // 标记来源为Bing搜索
+                    media: 'Bing搜索',
                     time: this.extractTime(item.title) // 尝试从标题中提取时间
                 }));
-                
+
                 if (onWebResults) {
                     onWebResults(formattedResults);
                 }
@@ -89,144 +50,91 @@ export default class SearchAPI {
 
             clearTimeout(timeoutId);
 
-            // 获取 AI 回答
-            const aiResponse = await fetch(`${this.API_URL}/assistant`, {
-                method: 'POST',
-                headers: this.getAuthHeaders(), 
-                body: JSON.stringify({
-                    assistant_id: "659e54b1b8006379b4b2abd6",
-                    model: "glm-4-assistant",
-                    messages: [{
-                        role: 'user',
-                        content: [{
-                            type: 'text',
-                            text: query
-                        }]
-                    }],
-                    stream: true
-                })
+            // 获取AI回答
+            const aiSearchUrl = `${this.API_URL}?keyword=${encodeURIComponent(query)}`;
+            const aiResponse = await fetch(aiSearchUrl, {
+                method: 'GET',
+                signal: controller.signal
             });
 
-            const reader = aiResponse.body.getReader();
-            let content = '';
-            let isFirstChunk = true;
+            const aiResult = await aiResponse.json();
             
-            while (true) {
-                const {done, value} = await reader.read();
-                if (done) break;
-                
-                const chunk = new TextDecoder().decode(value);
-                const lines = chunk.split('\n');
-                
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        try {
-                            if (line.includes('[DONE]')) continue;
-                            
-                            const data = JSON.parse(line.slice(6));
-                            if (data.choices?.[0]?.delta?.content) {
-                                const newContent = data.choices[0].delta.content;
-                                content += newContent;
-                                
-                                // 确保有足够的内容再开始显示
-                                if (content.length > 10 || !isFirstChunk) {
-                                    if (onContent) {
-                                        onContent(content);
-                                    }
-                                    isFirstChunk = false;
-                                }
-                            }
-                        } catch (e) {
-                            console.error('解析 SSE 数据失败:', e);
-                        }
-                    }
+            if (aiResult.code === 200 && aiResult.data && aiResult.data.text) {
+                // 通知内容开始
+                if (onContent) {
+                    onContent('');
                 }
-            }
+                
+                // 获取完整内容
+                const content = aiResult.data.text;
+                
+                // 更新内容回调
+                if (onContent) {
+                    onContent(content);
+                }
+                
+                // 获取相关问题和来源信息
+                const relatedInfo = this.getRelatedInfo(aiResult);
 
-            if (onComplete) {
-                onComplete(content);
+                // 完成回调，传递相关问题和来源等参数
+                if (onComplete) {
+                    onComplete(content, relatedInfo.relatedQuestions, relatedInfo.sources, relatedInfo.api_source);
+                }
+                
+                return {
+                    content: content,
+                    relatedQuestions: relatedInfo.relatedQuestions,
+                    sources: relatedInfo.sources,
+                    api_source: relatedInfo.api_source,
+                    webResults: relatedInfo.sources.map(source => ({
+                        title: source.title,
+                        content: source.snippet,
+                        link: source.link,
+                        media: '搜索结果'
+                    }))
+                };
+            } else {
+                throw new Error('AI搜索返回数据格式错误');
             }
-
         } catch (error) {
-            console.error('AI响应失败:', error);
+            console.error('获取AI响应失败:', error);
+            if (onComplete) {
+                onComplete('');
+            }
             throw error;
         }
     }
 
-    async generateMindMap(content) {
-        try {
-            const processedContent = content
-                .replace(/【\d+†source】/g, '')
-                .split('## 参考资料')[0]
-                .split('\n')
-                .filter(line => line.trim())
-                .join('\n')
-                .trim();
-            
-            const response = await fetch(`${this.API_URL}/assistant`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': this.API_KEY,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    assistant_id: "664e0cade018d633146de0d2",
-                    model: "glm-4-assistant",
-                    messages: [{
-                        role: 'user',
-                        content: [{
-                            type: 'text',
-                            text: `请根据以下内容生成思维导图：\n\n${processedContent}`
-                        }]
-                    }],
-                    stream: true
-                })
-            });
-
-            const reader = response.body.getReader();
-            let mindMapUrl = '';
-            let lastContent = '';
-            
-            while (true) {
-                const {done, value} = await reader.read();
-                if (done) break;
-                
-                const chunk = new TextDecoder().decode(value);
-                const lines = chunk.split('\n');
-                
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        try {
-                            if (line.includes('[DONE]')) continue;
-                            
-                            const data = JSON.parse(line.slice(6));
-                            if (data.choices?.[0]?.delta?.content) {
-                                lastContent += data.choices[0].delta.content;
-                                const matches = lastContent.match(/!\[.*?\]\((https:\/\/sfile\.chatglm\.cn\/markmap\/[^)\s]+)\)/);
-                                if (matches) {
-                                    mindMapUrl = matches[1];
-                                }
-                            }
-                        } catch (e) {
-                            console.error('解析思维导图数据失败:', e);
-                        }
-                    }
-                }
-            }
-            
-            return mindMapUrl || null;
-        } catch (error) {
-            console.error('生成思维导图失败:', error);
-            return null;
-        }
+    /**
+     * 获取相关问题和来源
+     * @param {Object} aiResult API返回的结果对象
+     * @returns {Object} 包含相关问题和来源的对象
+     */
+    getRelatedInfo(aiResult) {
+        if (!aiResult || !aiResult.data) return { relatedQuestions: [], sources: [] };
+        
+        return {
+            relatedQuestions: aiResult.data.related_questions || [],
+            sources: aiResult.data.sources || [],
+            api_source: aiResult.api_source || '官方API网:https://api.pearktrue.cn/'
+        };
     }
 
-    // 从标题中提取时间
+    /**
+     * 从标题中提取时间
+     * @param {string} title 标题
+     * @returns {string} 提取的时间字符串或空字符串
+     */
     extractTime(title) {
         const timeMatch = title.match(/发布时间：(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})/);
         return timeMatch ? timeMatch[1] : '';
     }
 
+    /**
+     * 显示网页搜索结果
+     * @param {Array} results 结果数组
+     * @param {HTMLElement} webResults 网页结果容器元素
+     */
     displayWebResults(results, webResults) {
         webResults.innerHTML = results.map((result, index) => `
             <div class="search-result" data-index="${index}">
@@ -252,11 +160,45 @@ export default class SearchAPI {
         `).join('');
     }
 
+    /**
+     * 格式化URL显示
+     * @param {string} url URL字符串
+     * @returns {string} 格式化后的URL
+     */
     formatUrl(url) {
-        // Implementation of formatUrl method
+        try {
+            const urlObj = new URL(url);
+            let formattedUrl = urlObj.hostname;
+            if (urlObj.pathname && urlObj.pathname !== '/') {
+                formattedUrl += urlObj.pathname.length > 20 
+                    ? urlObj.pathname.substring(0, 20) + '...' 
+                    : urlObj.pathname;
+            }
+            return formattedUrl;
+        } catch (e) {
+            return url;
+        }
     }
 
+    /**
+     * 格式化时间显示
+     * @param {string} time 时间字符串
+     * @returns {string} 格式化后的时间
+     */
     formatTime(time) {
-        // Implementation of formatTime method
+        try {
+            const date = new Date(time);
+            if (isNaN(date.getTime())) return time;
+            
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            return time;
+        }
     }
-} 
+}

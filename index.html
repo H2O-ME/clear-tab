@@ -123,9 +123,45 @@
     </script>
 </head>
 <body>
+    <script>
+        // 仅允许在指定域名下运行（强制阻断所有脚本和内容渲染）
+        (function() {
+            const allowedHosts = ['tab.thw.lol', '127.0.0.1', 'la.lll.al'];
+            if (!allowedHosts.includes(window.location.hostname)) {
+                // 清除所有head内容和样式，防止页面残留
+                document.head.innerHTML = '';
+                document.body.innerHTML = `
+  <div style="color:#fff;background:linear-gradient(135deg,#232526 0%,#414345 100%);height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.35rem;font-family:'Segoe UI',sans-serif;letter-spacing:0.01em;">
+    <div style="background:rgba(0,0,0,0.55);border-radius:18px;padding:2.2rem 2.5rem;box-shadow:0 8px 40px #0004;text-align:center;max-width:540px;">
+      <div style="font-size:2.3rem;margin-bottom:1.1rem;line-height:1.2;letter-spacing:0.04em;">
+        <span style='font-size:2.8rem;vertical-align:-10%;margin-right:0.5rem;'>🚫</span>请勿盗取源码
+      </div>
+      <div style="color:#FAE18C;font-weight:bold;font-size:1.18rem;margin-bottom:0.9rem;letter-spacing:0.02em;">您的行为可能涉嫌违法</div>
+      <div style="line-height:1.7;margin-bottom:1.2rem;">
+        <b style="color:#FFD166;">侵犯著作权罪</b> 和 <b style="color:#6EC6FF;">侵犯商业秘密罪</b><br>
+        <span style="color:#a4e2ff;font-size:0.98em;">（刑法第217条、219条）</span>
+      </div>
+      <div style="font-size:0.99rem;color:#eee;opacity:0.93;text-align:left;padding:0 0.2em;line-height:1.8;">
+        <span style="color:#FFD166;font-weight:bold;">《最高法解释(二)》第2条：</span><br>
+        “刑法第217条侵犯著作权罪中的‘复制发行’，包括复制、发行或者既复制又发行的行为。非法出版、复制、发行他人作品，侵犯著作权构成犯罪的，按照侵犯著作权罪定罪处罚。”<br><br>
+        <span style="color:#6EC6FF;font-weight:bold;">《最高法解释(三)》第3条：</span><br>
+        “采取非法复制、未经授权或者超越授权使用计算机信息系统等方式窃取商业秘密的，应当认定为刑法第219条第1款第1项规定的‘盗窃’。以贿赂、欺诈、电子侵入等方式获取权利人的商业秘密的，应当认定为刑法第219条第1款第1项规定的‘其他不正当手段’。”
+      </div>
+    </div>
+    <div style="margin-top:2.6rem;font-size:1.07rem;opacity:0.52;letter-spacing:0.01em;">
+      如有疑问请联系 <a href="mailto:thw@thw.lol" style="color:#7ecfff;text-decoration:underline;">thw@thw.lol</a>
+    </div>
+  </div>
+`;
+                // 阻止后续 JS 执行
+                window.stop && window.stop();
+                throw new Error('Not allowed domain');
+            }
+        })();
+    </script>
     <div class="clock-container">
-        <div class="time">20:04</div>
-        <div class="date">2023年11月27日 星期一</div>
+        <div class="time"></div>
+        <div class="date"></div>
     </div>
     <div class="search-container">
         <div class="search-box">
@@ -151,6 +187,11 @@
                         <img src="https://img.icons8.com/fluency/48/google-logo.png" alt="谷歌">
                         <span>谷歌</span>
                         <span class="shortcut">Alt+4</span>
+                    </div>
+                    <div class="search-engine-option" data-engine="metaso" data-icon="https://metaso.cn/favicon.ico">
+                        <img src="https://metaso.cn/favicon.ico" alt="秘塔AI">
+                        <span>秘塔AI</span>
+                        <span class="shortcut">Alt+5</span>
                     </div>
                 </div>
             </div>
@@ -276,16 +317,8 @@
                 from: "辛弃疾《青玉案》"
             },
             {
-                hitokoto: "不是一番寒彻骨，怎得梅花扑鼻香。",
-                from: "高明《琵琶记》"
-            },
-            {
-                hitokoto: "剪不断，理还乱，是离愁，别是一番滋味在心头。",
-                from: "李煜"
-            },
-            {
-                hitokoto: "业精于勤荒于嬉，行成于思而毁于随。",
-                from: "韩愈"
+                hitokoto: "马~宇辰，没来！",
+                from: "范学佳"
             },
             {
                 hitokoto: "富贵不能淫，贫贱不能移，威武不能屈。",
@@ -757,36 +790,27 @@
                 
                 // 加载缓存的图片
                 const img = new Image();
-                await new Promise((resolve, reject) => {
-                    img.onload = resolve;
-                    img.onerror = reject;
-                    img.src = objectUrl;
-                });
                 
-                // 设置壁纸
-                this.bingLayer.style.backgroundImage = `url('${objectUrl}')`;
+                // 设置超时
+                const timeoutId = setTimeout(() => {
+                    URL.revokeObjectURL(objectUrl);
+                    reject(new Error(`图片加载超时: ${url}`));
+                }, this.loadTimeThreshold);
                 
-                // 添加图片元素以确保显示
-                this.bingLayer.innerHTML = '';
-                const imgElement = document.createElement('img');
-                imgElement.src = objectUrl;
-                imgElement.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;';
-                this.bingLayer.appendChild(imgElement);
+                img.onload = () => {
+                    clearTimeout(timeoutId);
+                    const loadTime = Date.now() - loadStartTime;
+                    console.log(`缓存壁纸加载成功，总耗时: ${loadTime}ms`);
+                    resolve({ url: objectUrl, loadTime, originalUrl: url });
+                };
                 
-                // 显示壁纸和效果层
-                requestAnimationFrame(() => {
-                    if (!this.keepAnimationOnly) {
-                        this.bingLayer.style.opacity = '1';
-                        this.bingLayer.style.transform = 'scale(1)';
-                        this.effectLayer.style.opacity = '1';
-                        
-                        // 隐藏粒子动画层
-                        this.hideParticlesBackground();
-                    }
-                });
+                img.onerror = () => {
+                    clearTimeout(timeoutId);
+                    URL.revokeObjectURL(objectUrl);
+                    reject(new Error(`图片加载失败(缓存): ${url}`));
+                };
                 
-                console.log(`从缓存 ${cacheKey} 加载壁纸成功`);
-                return true;
+                img.src = objectUrl;
             } catch (error) {
                 console.warn(`从缓存 ${cacheKey} 加载壁纸失败:`, error);
                 return false;
@@ -997,7 +1021,7 @@
         const minutes = String(adjustedTime.getMinutes()).padStart(2, '0');
         document.querySelector('.time').textContent = `${hours}:${minutes}`;
         
-        // 更新日期显示
+        // 更新日期显示（始终补零，防止来回切换）
         const year = adjustedTime.getFullYear();
         const month = String(adjustedTime.getMonth() + 1).padStart(2, '0');
         const day = String(adjustedTime.getDate()).padStart(2, '0');
@@ -1034,12 +1058,11 @@
             <div class="result-card">
                 <div class="result-title" onclick="window.open('${item.href}', '_blank')">${item.title}</div>
                 <div class="result-url">${formatUrl(item.href)}</div>
-                <div class="result-snippet">${item.abstract}</div>
-                ${item.time ? `
-                    <div class="result-meta">
-                        <span class="result-time">${formatTime(item.time)}</span>
-                    </div>
-                ` : ''}
+                <p class="result-snippet">${item.abstract}</p>
+                <div class="result-meta">
+                    ${item.time ? `<span class="result-time">${formatTime(item.time)}</span>` : ''}
+                    ${item.media ? `<span class="result-source">${item.media}</span>` : ''}
+                </div>
             </div>
         `).join('');
 
@@ -1073,13 +1096,13 @@
         return time.split(' ')[0];
     }
 
-    // 更新日期显示
-    function updateDate() {
-        const now = new Date();
-        const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-        const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${days[now.getDay()]}`;
-        document.querySelector('.date').textContent = dateStr;
-    }
+    // 更新日期显示（不再被调用，防止与updateTime冲突）
+    // function updateDate() {
+    //     const now = new Date();
+    //     const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+    //     const dateStr = `${now.getFullYear()}年${String(now.getMonth() + 1).padStart(2, '0')}月${String(now.getDate()).padStart(2, '0')}日 ${days[now.getDay()]}`;
+    //     document.querySelector('.date').textContent = dateStr;
+    // }
 
     // 模拟获取天气数据
     async function getWeather() {
@@ -1141,6 +1164,15 @@
                 }
                 // 立即刷新一次语录
                 getQuote();
+
+                // 页面可见时自动恢复未完成搜索内容
+                const searchCompleted = localStorage.getItem('searchCompleted') === 'true';
+                const savedQuery = localStorage.getItem('lastSearchQuery');
+                if (typeof savedQuery === 'string' && savedQuery !== '' && !searchCompleted) {
+                    searchInput.value = savedQuery;
+                } else if (searchCompleted) {
+                    searchInput.value = '';
+                }
             } else {
                 // 页面不可见时，清除定时器
                 clearInterval(quoteRefreshTimer);
@@ -1150,7 +1182,10 @@
 
         // 清除搜索框内容并禁用自动填充
         if (searchInput) {
-            searchInput.value = '';
+            // 仅在首次页面加载时清空，避免覆盖可见性恢复逻辑
+            if (!localStorage.getItem('lastSearchQuery') || localStorage.getItem('searchCompleted') === 'true') {
+                searchInput.value = '';
+            }
             searchInput.setAttribute('autocomplete', 'off');
         }
         
@@ -1161,7 +1196,8 @@
 
         // 添加页面重新获得焦点时的处理
         window.addEventListener('focus', () => {
-            if (searchInput) searchInput.value = '';
+            // 只在已完成搜索时清空输入，未完成时不动
+            if (searchInput && localStorage.getItem('searchCompleted') === 'true') searchInput.value = '';
             if (resultsSearchInput) resultsSearchInput.value = '';
         });
 
@@ -1264,9 +1300,21 @@
             const option = document.querySelector(`.search-engine-option[data-engine="${savedEngine}"]`);
             if (option) {
                 currentEngineIcon.src = option.getAttribute('data-icon');
+                // 高亮选中项，移除其他项的高亮
+                document.querySelectorAll('.search-engine-option').forEach(opt => {
+                    opt.classList.toggle('selected', opt === option);
+                });
                 if (savedEngine === 'ai') {
                     searchInput.placeholder = '请输入';
+                } else {
+                    searchInput.placeholder = '请搜索';
                 }
+            }
+        } else {
+            // 默认高亮第一个项
+            const defaultOption = document.querySelector(`.search-engine-option[data-engine="bing"]`);
+            if (defaultOption) {
+                defaultOption.classList.add('selected');
             }
         }
 
@@ -1300,7 +1348,7 @@
                 const engine = this.getAttribute('data-engine');
                 const icon = this.getAttribute('data-icon');
                 
-                // 更新当前搜索引擎变量 - 这是修复的关键
+                // 更新当前搜索引擎变量
                 currentEngine = engine;
                 
                 // 更新当前搜索引擎图标
@@ -1308,6 +1356,11 @@
                 
                 // 存储所选搜索引擎
                 localStorage.setItem('selectedEngine', engine);
+                
+                // 高亮选中项，移除其他项的高亮
+                document.querySelectorAll('.search-engine-option').forEach(opt => {
+                    opt.classList.toggle('selected', opt === this);
+                });
                 
                 // 隐藏下拉菜单
                 engineDropdown.style.display = 'none';
@@ -1340,6 +1393,17 @@
                     const option = options[index];
                     currentEngine = option.dataset.engine;
                     currentEngineIcon.src = option.dataset.icon;
+                    // 存储所选搜索引擎
+                    localStorage.setItem('selectedEngine', currentEngine);
+                    // 高亮选中项，移除其他项的高亮
+                    document.querySelectorAll('.search-engine-option').forEach(opt => {
+                        opt.classList.toggle('selected', opt === option);
+                    });
+                    if (currentEngine === 'ai') {
+                        searchInput.placeholder = '请输入';
+                    } else {
+                        searchInput.placeholder = '请搜索';
+                    }
                     engineDropdown.classList.remove('show');
                     e.preventDefault();
                 }
@@ -1423,8 +1487,7 @@
                         
                         aiMessages.innerHTML = `
                             <div class="loading-container">
-                                <div class="loading-circle"></div>
-                                <p>AI 正在思考中...</p>
+                                <img src="https://chatglm.cn/img/pc_20speed-min.e4bebda4.gif" alt="AI 加载中" class="ai-loading-gif" />
                             </div>
                         `;
 
@@ -1433,10 +1496,10 @@
                             query,
                             displayWebResults,
                             displayAIContent,
-                            async (finalContent) => {
+                            async (finalContent, relatedQuestions, sources, apiSource) => {
                                 try {
                                     // 先显示加载状态
-                                    displayMindMapLoading();
+                                    displayRelatedInfoLoading();
                                     
                                     // 等待 AI 回答完成
                                     await new Promise(resolve => {
@@ -1451,23 +1514,15 @@
                                         checkComplete();
                                     });
                                     
-                                    // 生成思维导图
-                                    const mindMapUrl = await searchAPI.generateMindMap(finalContent);
-                                    if (mindMapUrl) {
-                                        displayMindMap(mindMapUrl);
-                                    } else {
-                                        const loadingMindMap = document.querySelector('.mind-map.loading');
-                                        if (loadingMindMap) {
-                                            clearInterval(Number(loadingMindMap.dataset.animationInterval));
-                                            loadingMindMap.remove();
-                                        }
-                                    }
+                                    // 显示相关问题和来源信息
+                                    displayRelatedInfo(relatedQuestions, sources, apiSource);
+                                    
                                 } catch (error) {
-                                    console.error('思维导图生成失败:', error);
-                                    const loadingMindMap = document.querySelector('.mind-map.loading');
-                                    if (loadingMindMap) {
-                                        clearInterval(Number(loadingMindMap.dataset.animationInterval));
-                                        loadingMindMap.remove();
+                                    console.error('相关信息加载失败:', error);
+                                    const loadingRelatedInfo = document.querySelector('.related-info.loading');
+                                    if (loadingRelatedInfo) {
+                                        clearInterval(Number(loadingRelatedInfo.dataset.animationInterval));
+                                        loadingRelatedInfo.remove();
                                     }
                                 }
                             }
@@ -1476,6 +1531,9 @@
                         console.error('搜索失败:', error);
                         displayError();
                     }
+                    break;
+                case 'metaso':
+                    window.location.href = `https://metaso.cn/search/059fe8c5-9591-4680-8f29-d1c0500f1bb7?s=nyzav&referrer_s=nyzav&question=${encodeURIComponent(query)}`;
                     break;
             }
         }
@@ -1512,21 +1570,21 @@
             }
         }
 
-        // 修改思维导图加载状态显示
-        function displayMindMapLoading() {
+        // 修改相关信息加载状态显示
+        function displayRelatedInfoLoading() {
             const aiMessages = document.querySelector('.ai-messages');
-            const existingMindMap = aiMessages.querySelector('.mind-map');
-            if (existingMindMap) {
-                existingMindMap.remove();
+            const existingRelatedInfo = aiMessages.querySelector('.related-info');
+            if (existingRelatedInfo) {
+                existingRelatedInfo.remove();
             }
 
             const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'mind-map loading';
+            loadingDiv.className = 'related-info loading';
             loadingDiv.innerHTML = `
                 <div class="loading-container">
                     <div class="loading-spinner"></div>
                     <div class="loading-text">
-                        <p class="loading-title">正在生成思维导图</p>
+                        <p class="loading-title">正在获取相关信息</p>
                         <p class="loading-dots">...</p>
                     </div>
                 </div>
@@ -1551,41 +1609,103 @@
             });
         }
 
-        // 修改思维导图显示函数
-        function displayMindMap(url) {
+        // 显示相关问题和来源信息
+        function displayRelatedInfo(relatedQuestions, sources, apiSource) {
             const aiMessages = document.querySelector('.ai-messages');
             const messageDiv = aiMessages.querySelector('.ai-message');
             
             // 确保 AI 回答已完全显示
             if (!messageDiv || !messageDiv.dataset.complete) {
-                setTimeout(() => displayMindMap(url), 100);
+                setTimeout(() => displayRelatedInfo(relatedQuestions, sources, apiSource), 100);
                 return;
             }
             
             // 移除现有的加载状态
-            const loadingMindMap = aiMessages.querySelector('.mind-map.loading');
-            if (loadingMindMap) {
+            const loadingRelatedInfo = aiMessages.querySelector('.related-info.loading');
+            if (loadingRelatedInfo) {
                 // 清除加载动画
-                clearInterval(Number(loadingMindMap.dataset.animationInterval));
-                loadingMindMap.remove();
+                clearInterval(Number(loadingRelatedInfo.dataset.animationInterval));
+                loadingRelatedInfo.remove();
             }
 
-            // 创建思维导图容器
-            const mindMapDiv = document.createElement('div');
-            mindMapDiv.className = 'mind-map';
-            mindMapDiv.innerHTML = `
-                <h3><i class="fas fa-project-diagram"></i> 思维导图</h3>
-                <div class="mind-map-content">
-                    <img src="${url}" alt="思维导图" class="mind-map-image">
-                </div>
+            // 创建相关信息容器
+            const relatedInfoDiv = document.createElement('div');
+            relatedInfoDiv.className = 'related-info';
+            
+            // 构建相关问题HTML
+            let relatedQuestionsHtml = '';
+            if (relatedQuestions && relatedQuestions.length > 0) {
+                relatedQuestionsHtml = `
+                    <div class="related-questions">
+                        <h3><i class="fas fa-question-circle"></i> 相关问题</h3>
+                        <ul class="question-list">
+                            ${relatedQuestions.map(question => `
+                                <li class="question-item">
+                                    <a href="javascript:void(0)" class="question-link" data-query="${question}">
+                                        ${question}
+                                    </a>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // 构建来源信息HTML
+            let sourcesHtml = '';
+            if (sources && sources.length > 0) {
+                sourcesHtml = `
+                    <div class="info-sources">
+                        <h3><i class="fas fa-link"></i> 信息来源</h3>
+                        <ul class="source-list">
+                            ${sources.map((source, index) => `
+                                <li class="source-item">
+                                    <span class="source-index">[${index + 1}]</span>
+                                    <a href="${source.url}" target="_blank" class="source-link" title="${source.title}">
+                                        ${source.title}
+                                    </a>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // 构建API来源信息
+            let apiSourceHtml = '';
+            if (apiSource) {
+                apiSourceHtml = `
+                    <div class="api-source">
+                        <p><i class="fas fa-server"></i> 由衷感谢：PearAPI</p>
+                    </div>
+                `;
+            }
+            
+            // 组合所有内容
+            relatedInfoDiv.innerHTML = `
+                ${relatedQuestionsHtml}
+                ${sourcesHtml}
+                ${apiSourceHtml}
             `;
-            aiMessages.appendChild(mindMapDiv);
+            
+            aiMessages.appendChild(relatedInfoDiv);
 
             // 添加动画效果
             requestAnimationFrame(() => {
                 setTimeout(() => {
-                    mindMapDiv.classList.add('visible');
+                    relatedInfoDiv.classList.add('visible');
                 }, 100);
+            });
+            
+            // 添加相关问题点击事件
+            const questionLinks = relatedInfoDiv.querySelectorAll('.question-link');
+            questionLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    const query = this.getAttribute('data-query');
+                    // 填充搜索框并执行搜索
+                    document.querySelector('.results-search-input').value = query;
+                    performSearch(query);
+                });
             });
         }
 
@@ -1698,7 +1818,7 @@
         });
 
         // 更新日期和天气
-        updateDate();
+        // updateDate(); // 不再被调用
         getWeather();
         
         // 显示快速链接
@@ -1839,27 +1959,30 @@
                 script.onload = function() {
                     document.body.removeChild(script);
                 };
-            }, 400);
+            }, 300);
             
-            // 修改搜索按钮点击事件，标记搜索已完成
+            // 修改搜索按钮点击事件，标记搜索已完成并清除缓存
             document.querySelector('.search-btn').addEventListener('click', function() {
                 localStorage.setItem('searchCompleted', 'true');
+                localStorage.removeItem('lastSearchQuery');
             });
             
-            // 同样修改键盘Enter键搜索事件
+            // 同样修改键盘Enter键搜索事件，标记搜索已完成并清除缓存
             searchInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     localStorage.setItem('searchCompleted', 'true');
+                    localStorage.removeItem('lastSearchQuery');
                     // 原有搜索代码...
                 }
             });
             
-            // 同样修改搜索联想项点击事件
+            // 同样修改搜索联想项点击事件，标记搜索已完成并清除缓存
             document.querySelectorAll('.search-suggestion-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const query = this.getAttribute('data-query');
                     document.querySelector('.search-input').value = query;
                     localStorage.setItem('searchCompleted', 'true');
+                    localStorage.removeItem('lastSearchQuery');
                     performSearch(query);
                     suggestionsBox.style.display = 'none';
                 });
@@ -1872,7 +1995,7 @@
                 const suggestionsBox = document.querySelector('.search-suggestions');
                 
                 // 如果点击的不是搜索容器内的元素，且搜索容器不再处于激活状态
-                if (!e.target.closest('.search-container') || !searchContainer.classList.contains('active')) {
+                if (!e.target.closest('.search-container') && searchContainer.classList.contains('active')) {
                     // 隐藏搜索联想
                     if (suggestionsBox) {
                         suggestionsBox.style.display = 'none';
@@ -1885,5 +2008,6 @@
         setupSearchSuggestions();
     });
     </script>
+<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c50c3284315e4ecc9d2a193a5e15c045"}'></script><!-- Cloudflare Pages Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"931cd818eae96812","version":"2025.4.0-1-g37f21b1","r":1,"token":"296e1eaf2f9249ad8f6bc60d215128d3","serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}}}' crossorigin="anonymous"></script>
 </body>
 </html>
