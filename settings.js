@@ -119,7 +119,7 @@ class SettingsManager {
                     </div>
                 </div>
                 <div class="settings-footer">
-                    <p>清 Tab - 版本 1.1.0</p>
+                    <p>清 Tab - 版本 1.1.3</p>
                 </div>
             </div>
         `;
