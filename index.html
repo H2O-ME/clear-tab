@@ -100,39 +100,6 @@
     </script>
 </head>
 <body>
-    <script>
-        (function() {
-            const allowedHosts = ['tab.thw.lol', '127.0.0.1', 'la.lll.al','qtab.netlify.app'];
-            if (!allowedHosts.includes(window.location.hostname)) {
-                document.head.innerHTML = '';
-                document.body.innerHTML = `
-  <div style="color:#fff;background:linear-gradient(135deg,#232526 0%,#414345 100%);height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.35rem;font-family:'Segoe UI',sans-serif;letter-spacing:0.01em;">
-    <div style="background:rgba(0,0,0,0.55);border-radius:18px;padding:2.2rem 2.5rem;box-shadow:0 8px 40px #0004;text-align:center;max-width:540px;">
-      <div style="font-size:2.3rem;margin-bottom:1.1rem;line-height:1.2;letter-spacing:0.04em;">
-        <span style='font-size:2.8rem;vertical-align:-10%;margin-right:0.5rem;'>🚫</span>请勿盗取源码
-      </div>
-      <div style="color:#FAE18C;font-weight:bold;font-size:1.18rem;margin-bottom:0.9rem;letter-spacing:0.02em;">您的行为可能涉嫌违法</div>
-      <div style="line-height:1.7;margin-bottom:1.2rem;">
-        <b style="color:#FFD166;">侵犯著作权罪</b> 和 <b style="color:#6EC6FF;">侵犯商业秘密罪</b><br>
-        <span style="color:#a4e2ff;font-size:0.98em;">（刑法第217条、219条）</span>
-      </div>
-      <div style="font-size:0.99rem;color:#eee;opacity:0.93;text-align:left;padding:0 0.2em;line-height:1.8;">
-        <span style="color:#FFD166;font-weight:bold;">《最高法解释(二)》第2条：</span><br>
-        “刑法第217条侵犯著作权罪中的‘复制发行’，包括复制、发行或者既复制又发行的行为。非法出版、复制、发行他人作品，侵犯著作权构成犯罪的，按照侵犯著作权罪定罪处罚。”<br><br>
-        <span style="color:#6EC6FF;font-weight:bold;">《最高法解释(三)》第3条：</span><br>
-        “采取非法复制、未经授权或者超越授权使用计算机信息系统等方式窃取商业秘密的，应当认定为刑法第219条第1款第1项规定的‘盗窃’。以贿赂、欺诈、电子侵入等方式获取权利人的商业秘密的，应当认定为刑法第219条第1款第1项规定的‘其他不正当手段’。”
-      </div>
-    </div>
-    <div style="margin-top:2.6rem;font-size:1.07rem;opacity:0.52;letter-spacing:0.01em;">
-      如有疑问请联系 <a href="mailto:thw@thw.lol" style="color:#7ecfff;text-decoration:underline;">thw@thw.lol</a>
-    </div>
-  </div>
-`;
-                window.stop && window.stop();
-                throw new Error('Not allowed domain');
-            }
-        })();
-    </script>
     <div class="clock-container">
         <div class="time"></div>
         <div class="date"></div>
